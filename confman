@@ -7,28 +7,33 @@ usage:  $0 <operation> [...]
 END
 }
 
-query() {
-    # TODO: options: -e/--explicit -l/--list -o/--owns
+explicit=false
+list=false
+owns=false
 
+query() {
     error "unimplemented operation: $operation"
 }
+
+cascade=false
+recursive=false
+unneeded=false
 
 remove() {
-    if [ -z "${1+x}" ]; then
+    if [ "$#" = 0 ]; then
         return
     fi
-
-    # TODO: options: -c/--cascade -s/--recursive -u/--unneeded
 
     error "unimplemented operation: $operation"
 }
 
+sysupgrade=false
+refresh=false
+
 sync() {
-    if [ -z "${1+x}" ]; then
+    if [ "$#" = 0 ]; then
         return
     fi
-
-    # TODO: options: -u/--sysupgrade -y/--refresh
 
     error "unimplemented operation: $operation"
 }
@@ -40,7 +45,7 @@ error() {
 
 operation=
 
-try_set_operation() {
+set_operation() {
     if [ -n "$operation" ]; then
         error 'only one operation may be used at a time'
     fi
@@ -64,16 +69,58 @@ finish_operation() {
     "$operation"
 }
 
+set_option() {
+    if [ "$operation" != "$2" ]; then
+        error "invalid option '-$flag'"
+    fi
+
+    eval "$1=true"
+}
+
+process_flag() {
+    case "$flag" in
+    c) set_option cascade remove ;;
+    e) set_option explicit query ;;
+    h) set_operation help ;;
+    l) set_option list query ;;
+    o) set_option own query ;;
+    Q) set_operation query ;;
+    R) set_operation remove ;;
+    S) set_operation sync ;;
+    s) set_option recursive remove ;;
+    u)
+        case "$operation" in
+        remove) unneded=true ;;
+        sync) sysupgrade=true ;;
+        *) error "invalid option '-$flag'" ;;
+        esac
+        ;;
+    y) set_option refresh sync ;;
+    esac
+}
+
+process_argument() {
+    case "$argument" in
+    --help | --query | --remove | --sync) set_operation "${argument#--}" ;;
+
+    --explicit | --list | --owns) set_option "${argument#--}" query ;;
+    --cascade | --recursive | --unneeded) set_option "${argument#--}" remove ;;
+    --sysupgrade | --refresh) set_option "${argument#--}" sync ;;
+
+    --*) error "invalid option '$argument'" ;;
+
+    -*)
+        for flag in $(printf '%s' "${argument#-}" | fold -w1); do
+            process_flag
+        done
+        ;;
+    *) operate_on "$argument" ;;
+    esac
+}
+
 main() {
     for argument in "$@"; do
-        case "$argument" in
-        -h | --help) try_set_operation help ;;
-        -Q | --query) try_set_operation query ;;
-        -R | --remove) try_set_operation remove ;;
-        -S | --sync) try_set_operation sync ;;
-        -*) error "invalid option '$argument'" ;;
-        *) operate_on "$argument" ;;
-        esac
+        process_argument
     done
 
     finish_operation
