@@ -1,5 +1,12 @@
 #!/bin/sh
 
+error() {
+    printf 'error: %s\n' "$1" >&2
+    exit 1
+}
+
+operation=
+
 help() {
     # TODO: check the argument is set and if so print operation specific info
     cat <<END
@@ -38,21 +45,6 @@ sync() {
     error "unimplemented operation: $operation"
 }
 
-error() {
-    printf 'error: %s\n' "$1" >&2
-    exit 1
-}
-
-operation=
-
-set_operation() {
-    if [ -n "$operation" ]; then
-        error 'only one operation may be used at a time'
-    fi
-
-    operation="$1"
-}
-
 operate_on() {
     if [ -z "$operation" ]; then
         error 'no operation specified'
@@ -67,6 +59,14 @@ finish_operation() {
     fi
 
     "$operation"
+}
+
+set_operation() {
+    if [ -n "$operation" ]; then
+        error 'only one operation may be used at a time'
+    fi
+
+    operation="$1"
 }
 
 set_option() {
@@ -90,7 +90,7 @@ process_flag() {
     s) set_option recursive remove ;;
     u)
         case "$operation" in
-        remove) unneded=true ;;
+        remove) unneeded=true ;;
         sync) sysupgrade=true ;;
         *) error "invalid option '-$flag'" ;;
         esac
