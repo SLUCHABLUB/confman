@@ -7,6 +7,18 @@ usage:  $0 <operation> [...]
 END
 }
 
+query() {
+    error "unimplemented operation: $operation"
+}
+
+remove() {
+    error "unimplemented operation: $operation"
+}
+
+sync() {
+    error "unimplemented operation: $operation"
+}
+
 error() {
     printf 'error: %s\n' "$1" >&2
     exit 1
@@ -45,7 +57,7 @@ main() {
         -Q | --query) try_set_operation query ;;
         -R | --remove) try_set_operation remove ;;
         -S | --sync) try_set_operation sync ;;
-        -*) errpr "invalid option '$argument'" ;;
+        -*) error "invalid option '$argument'" ;;
         *) operate_on "$argument" ;;
         esac
     done
