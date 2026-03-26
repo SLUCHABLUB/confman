@@ -19,6 +19,21 @@ list=false
 owns=false
 
 query() {
+    if "$list"; then
+        # TODO: print the files owned by the argument package
+        return
+    fi
+
+    if "$owns"; then
+        # TODO: print the package that owns the argument file
+        return
+    fi
+
+    if "$explicit"; then
+        # TODO: filter out dependencies
+        :
+    fi
+
     error "unimplemented operation: $operation"
 }
 
@@ -31,6 +46,23 @@ remove() {
         return
     fi
 
+    if "$cascade"; then
+        # TODO: iterate over non-explicitly installed packages and remove them if they depend on the package
+        :
+    fi
+
+    # TODO: remove the package
+
+    if "$recursive"; then
+        # TODO: remove dependencies of the package
+        :
+    fi
+
+    if "$unneeded"; then
+        # TODO: iterate over non-explicitly installed packages and remove them if they're not depended upon
+        :
+    fi
+
     error "unimplemented operation: $operation"
 }
 
@@ -40,6 +72,16 @@ refresh=false
 sync() {
     if [ "$#" = 0 ]; then
         return
+    fi
+
+    if "$refresh"; then
+        # TODO: git pull
+        :
+    fi
+
+    if "$sysupgrade"; then
+        # TODO: sync everything that's installed
+        :
     fi
 
     error "unimplemented operation: $operation"
