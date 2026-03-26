@@ -8,14 +8,28 @@ END
 }
 
 query() {
+    # TODO: options: -e/--explicit -l/--list -o/--owns
+
     error "unimplemented operation: $operation"
 }
 
 remove() {
+    if [ -z "${1+x}" ]; then
+        return
+    fi
+
+    # TODO: options: -c/--cascade -s/--recursive -u/--unneeded
+
     error "unimplemented operation: $operation"
 }
 
 sync() {
+    if [ -z "${1+x}" ]; then
+        return
+    fi
+
+    # TODO: options: -u/--sysupgrade -y/--refresh
+
     error "unimplemented operation: $operation"
 }
 
