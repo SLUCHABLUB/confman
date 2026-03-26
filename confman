@@ -1,5 +1,56 @@
 #!/bin/sh
 
-cat <<END
+help() {
+    # TODO: check the argument is set and if so print operation specific info
+    cat <<END
 usage:  $0 <operation> [...]
 END
+}
+
+error() {
+    printf 'error: %s\n' "$1" >&2
+    exit 1
+}
+
+operation=
+
+try_set_operation() {
+    if [ -n "$operation" ]; then
+        error 'only one operation may be used at a time'
+    fi
+
+    operation="$1"
+}
+
+operate_on() {
+    if [ -z "$operation" ]; then
+        error 'no operation specified'
+    fi
+
+    "$operation" "$1"
+}
+
+finish_operation() {
+    if [ -z "$operation" ]; then
+        error 'no operation specified'
+    fi
+
+    "$operation"
+}
+
+main() {
+    for argument in "$@"; do
+        case "$argument" in
+        -h | --help) try_set_operation help ;;
+        -Q | --query) try_set_operation query ;;
+        -R | --remove) try_set_operation remove ;;
+        -S | --sync) try_set_operation sync ;;
+        -*) errpr "invalid option '$argument'" ;;
+        *) operate_on "$argument" ;;
+        esac
+    done
+
+    finish_operation
+}
+
+main "$@"
