@@ -19,14 +19,29 @@ list=false
 owns=false
 
 query() {
-    # TODO: check mutual exclusivity of options
+    if "$owns"; then
+        if "$explicit"; then
+            error "invalid option: '--owns' and '--explicit' may not be used together"
+        fi
+        if "$list"; then
+            error "invalid option: '--owns' and '--list' may not be used together"
+        fi
 
-    if "$list"; then
-        # TODO: print the files owned by the argument package
-        return
-    elif "$owns"; then
         # TODO: print the package that owns the argument file
-        return
+        :
+    elif "$list"; then
+        if "$explicit"; then
+            # TODO: filter out dependencies
+            :
+        fi
+
+        if [ "$#" = 0 ]; then
+            # TODO: print all files
+            :
+        else
+            # TODO: print the files owned by the argument package
+            :
+        fi
     else
         if "$explicit"; then
             # TODO: filter out dependencies
