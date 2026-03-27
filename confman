@@ -19,19 +19,21 @@ list=false
 owns=false
 
 query() {
+    # TODO: check mutual exclusivity of options
+
     if "$list"; then
         # TODO: print the files owned by the argument package
         return
-    fi
-
-    if "$owns"; then
+    elif "$owns"; then
         # TODO: print the package that owns the argument file
         return
-    fi
+    else
+        if "$explicit"; then
+            # TODO: filter out dependencies
+            :
+        fi
 
-    if "$explicit"; then
-        # TODO: filter out dependencies
-        :
+        # TODO: loop over installed packages
     fi
 
     error "unimplemented operation: $operation"
@@ -47,14 +49,14 @@ remove() {
     fi
 
     if "$cascade"; then
-        # TODO: iterate over non-explicitly installed packages and remove them if they depend on the package
+        # TODO: iterate over non-explicitly installed packages and remove them if they depend on the argument package
         :
     fi
 
     # TODO: remove the package
 
     if "$recursive"; then
-        # TODO: remove dependencies of the package
+        # TODO: remove dependencies of the argument package
         :
     fi
 
@@ -83,6 +85,10 @@ sync() {
         # TODO: sync everything that's installed
         :
     fi
+
+    # TODO: sync dependencies
+
+    # TODO: sync the argument package
 
     error "unimplemented operation: $operation"
 }
