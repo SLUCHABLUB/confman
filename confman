@@ -20,7 +20,10 @@ add_repository() {
 }
 
 # End of Public API
-# Anything beyond this point should not be relied upon in user configuration since it may change in a minor release.
+#   Anything beyond this point should not be relied upon in user configuration.
+#   It may change in a patch release.
+
+# Utilities
 
 error() {
     printf 'error: %s\n' "$1" >&2
@@ -30,7 +33,41 @@ error() {
 NEWLINE='
 '
 
+# Variables
+
+# The current operation.
 operation=
+
+# Query flags.
+explicit=false
+list=false
+owns=false
+# Remove flags.
+cascade=false
+recursive=false
+unneeded=false
+# Sync flags.
+sysupgrade=false
+refresh=false
+
+# Newline separated list of space separated triples of repository name, path, and git url.
+repositories=
+# Newline separated list of package names.
+installed_packages=
+# Newline separated list of package names.
+explicitly_installed_packages=
+
+# "Local" variables.
+unset argument
+unset configuration_directory
+unset data_directory
+unset explicitly_installed_packages_file
+unset flag
+unset installed_packages_file
+unset line
+unset repositories_file
+
+# Operations
 
 help() {
     # TODO: check the argument is set and if so print operation specific info
@@ -38,10 +75,6 @@ help() {
 usage:  $0 <operation> [...]
 END
 }
-
-explicit=false
-list=false
-owns=false
 
 query() {
     if "$owns"; then
@@ -79,10 +112,6 @@ query() {
     error "unimplemented operation: $operation"
 }
 
-cascade=false
-recursive=false
-unneeded=false
-
 remove() {
     if [ "$#" = 0 ]; then
         return
@@ -108,9 +137,6 @@ remove() {
     error "unimplemented operation: $operation"
 }
 
-sysupgrade=false
-refresh=false
-
 sync() {
     if [ "$#" = 0 ]; then
         return
@@ -133,6 +159,8 @@ sync() {
     error "unimplemented operation: $operation"
 }
 
+# Operation polymorfism.
+
 operate_on() {
     if [ -z "$operation" ]; then
         error 'no operation specified'
@@ -148,6 +176,8 @@ finish_operation() {
 
     "$operation"
 }
+
+# Command line argument parsing.
 
 set_operation() {
     if [ -n "$operation" ]; then
@@ -206,12 +236,7 @@ process_argument() {
     esac
 }
 
-# Newline separated list of space separated triples of repository name, path, and git url.
-repositories=
-# Newline separated list of package names.
-installed_packages=
-# Newline separated list of package names.
-explicitly_installed_packages=
+# Configuration Parsing
 
 read_all_configuration() {
     for configuration_directory in '/etc' "${XDG_CONFIG_HOME-"$HOME/.config"}"; do
@@ -219,9 +244,6 @@ read_all_configuration() {
     done
 }
 
-unset configuration_directory
-unset repositories_file
-unset line
 read_configuration() {
     repositories_file="$configuration_directory/confman/repositories"
 
@@ -233,6 +255,8 @@ read_configuration() {
             done
     fi
 }
+
+# Data Parsing
 
 read_all_data() {
     xdg_data_dirs="${XDG_DATA_DIRS-/usr/local/share/:/usr/share/}"
@@ -251,9 +275,6 @@ read_packages_file() {
     fi
 }
 
-unset data_directory
-unset installed_packages_file
-unset explicitly_installed_packages_file
 read_data() {
     installed_packages_file="$data_directory/confman/installed packages"
     explicitly_installed_packages_file="$data_directory/confman/explicitly installed packages"
@@ -262,6 +283,8 @@ read_data() {
 
     explicitly_installed_packages="$explicitly_installed_packages$NEWLINE$(read_packages_file "$explicitly_installed_packages_file")"
 }
+
+# Main
 
 main() {
     read_all_configuration
